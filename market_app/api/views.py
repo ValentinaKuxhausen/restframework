@@ -29,7 +29,7 @@ def market_single_view(request, pk):   # primary key übergeben
 
     if request.method == 'PUT':
         market = Market.objects.get(pk=pk)  # holen den Market aus der DB   
-        serializer = MarketSerializer(market, data=request.data)    # updaten den Market mit den neuen Daten, Daten aus der request
+        serializer = MarketSerializer(market, data=request.data, partial=True)    # updaten den Market mit den neuen Daten, Daten aus der request
         
         if serializer.is_valid():
             serializer.save()       # save wenn valide
