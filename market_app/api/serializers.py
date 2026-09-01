@@ -1,21 +1,42 @@
 from rest_framework import serializers
-from market_app.models import Market
+from market_app.models import Market, Seller, Product
 
-# max_lenght gibt von hier, und NICHT von models
-class MarketSerializer(serializers.Serializer):
-    id = serializers.IntegerField(read_only=True)     # primary key
-    name = serializers.CharField(max_length=255)
-    location = serializers.CharField(max_length=255)
-    description = serializers.CharField()
-    net_worth = serializers.DecimalField(max_digits=100, decimal_places=2)
+def validate_no_x(value):
+    errors = []
 
-    def create(self, validated_data):
-        return Market.objects.create(**validated_data)  # wir übergeben die keyword arguments des dictionary
-    
-    def update(self, instance, validated_data):
-        instance.name = validated_data.get('name', instance.name)
-        instance.location = validated_data.get('location', instance.location)
-        instance.description = validated_data.get('description', instance.description)
-        instance.net_worth = validated_data.get('net_worth', instance.net_worth)
-        instance.save()
-        return instance
+    if 'X' in value:
+        errors.append('No X allowed')
+    if 'Y' in value:
+        errors.append('No Y allowed')
+
+    if errors:
+        raise serializers.ValidationError(errors)
+    return value
+
+class MarketSerializer(serializers.ModelSerializer):
+    location = serializers.CharField(max_length=255, validators=[validate_no_x])
+
+    class Meta:
+        model = Market
+        fields = ['id', 'name', 'location', 'description', 'net_worth']
+
+class SellersDetailSerializer(serializers.ModelSerializer):
+    markets = serializers.StringRelatedField(many=True)
+
+    class Meta:
+        model = Seller
+        fields = ['id', 'name', 'contact_info', 'markets']
+
+class SellerCreateSerializer(serializers.ModelSerializer):
+    markets = serializers.PrimaryKeyRelatedField(
+        queryset=Market.objects.all(), many=True, write_only=True
+    )
+
+    class Meta:
+        model = Seller
+        fields = ['name', 'contact_info', 'markets']
+
+class ProductSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Product
+        fields = ['id', 'name', 'description', 'price', 'market', 'seller']

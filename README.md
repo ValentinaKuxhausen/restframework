@@ -5,9 +5,9 @@ cd projektname
 
 2. Virtual Environment aktivieren
 Windows (PowerShell):
-.\venv\Scripts\activate
+.\.venv\Scripts\activate
 Git Bash:
-source venv/Scripts/activate
+source .venv/Scripts/activate
 
 3. Server starten (Git Bash)
 python manage.py runserver
@@ -19,7 +19,7 @@ http://127.0.0.1:8000/market/
 
 🛠️ Falls etwas nicht funktioniert
 ❌ Fehler: Module nicht gefunden
-→ venv nicht aktiv
+→ .venv nicht aktiv
 ✔ Lösung:
 pip install -r requirements.txt
 

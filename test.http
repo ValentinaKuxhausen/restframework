@@ -1,0 +1,14 @@
+POST http://127.0.0.1:8000/market/
+Content-Type: application/json
+
+{
+    "name": "Mein Laden",
+    "location": "Kassel",
+    "description": "hier gibt es nur schöne Sachen",
+    "net_worth": "550000.00"
+}
+
+###
+
+GET http://127.0.0.1:8000/market/1/
+Content-Type: application/json

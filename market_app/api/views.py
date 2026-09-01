@@ -1,45 +1,23 @@
-from rest_framework.decorators import api_view
-from rest_framework.response import Response    
-from .serializers import MarketSerializer
-from market_app.models import Market
+from rest_framework import viewsets
+from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
+from .serializers import MarketSerializer, SellersDetailSerializer, SellerCreateSerializer, ProductSerializer
+from market_app.models import Market, Seller, Product
 
-@api_view(['GET', 'POST']) # GET ist default
-def markets_view(request):
+class MarketViewSet(viewsets.ModelViewSet):
+    queryset = Market.objects.all()
+    serializer_class = MarketSerializer
+    permission_classes = [IsAuthenticated]  # alle Methoden erfordern Login
 
-    if request.method == 'GET':
-        markets = Market.objects.all()
-        serializer = MarketSerializer(markets, many=True)
-        return Response(serializer.data)
-    elif request.method == 'POST':
-        serializer = MarketSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        else:
-            return Response(serializer.errors)
-        
-@api_view(['GET', 'PUT', 'DELETE'])
-def market_single_view(request, pk):   # primary key übergeben
+class SellerViewSet(viewsets.ModelViewSet):
+    queryset = Seller.objects.all()
+    # kein permission_classes → greift auf globales IsAuthenticatedOrReadOnly zurück
 
-    if request.method == 'GET':
-        market = Market.objects.get(pk=pk)
-        serializer = MarketSerializer(market)
-        return Response(serializer.data)
-    
+    def get_serializer_class(self):
+        if self.request.method in ['POST', 'PUT', 'PATCH']:
+            return SellerCreateSerializer
+        return SellersDetailSerializer
 
-    if request.method == 'PUT':
-        market = Market.objects.get(pk=pk)  # holen den Market aus der DB   
-        serializer = MarketSerializer(market, data=request.data, partial=True)    # updaten den Market mit den neuen Daten, Daten aus der request
-        
-        if serializer.is_valid():
-            serializer.save()       # save wenn valide
-            return Response(serializer.data)
-        else:
-            return Response(serializer.errors)
-        
-        
-    if request.method == 'DELETE':
-        market = Market.objects.get(pk=pk)
-        serializer = MarketSerializer(market)
-        market.delete()
-        return Response(serializer.data)
+class ProductViewSet(viewsets.ModelViewSet):
+    queryset = Product.objects.all()
+    serializer_class = ProductSerializer
+    # kein permission_classes → greift auf globales IsAuthenticatedOrReadOnly zurück

@@ -1,7 +1,9 @@
-from django.urls import path
-from .views import markets_view, market_single_view
+from rest_framework.routers import DefaultRouter
+from .views import MarketViewSet, SellerViewSet, ProductViewSet
 
-urlpatterns = [
-    path('', markets_view),
-    path('<int:pk>/', market_single_view),
-]
+router = DefaultRouter()
+router.register('market', MarketViewSet)
+router.register('seller', SellerViewSet)
+router.register('product', ProductViewSet)
+
+urlpatterns = router.urls
